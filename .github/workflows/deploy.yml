@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  upload:
+    name: Push template to master
+    runs-on: ubuntu-latest
+    if: github.repository == 'kali-maa/package-template' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Initial setup
+      run: |
+        openssl aes-256-cbc -K $encrypted_c554857c6215_key -iv $encrypted_c554857c6215_iv -in github_deploy_key.enc -out ~/.ssh/publish-key -d
+        chmod u=rw,og= ~/.ssh/publish-key
+        echo "Host github.com" >> ~/.ssh/config
+        echo "  IdentityFile ~/.ssh/publish-key" >> ~/.ssh/config
+        cd ..
+    - name: Set up Git
+      run: |
+        git --version
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+    - name: Download rendered package
+      uses: actions/download-artifact@v2
+      with:
+        name: rendered
+        path: ./test
+    - name: Run script
+      run: |
+        cd test
+        ls packagename
+        git clone git@github.com:astropy/package-template rendered
+        cd rendered
+        git remote update
+        git checkout master
+        rsync -avz --delete --exclude .git/ ../packagename/ ./
+        git add -A
+        git commit --allow-empty -m "Update rendered version to ""$GITHUB_SHA"
+        git push origin master
