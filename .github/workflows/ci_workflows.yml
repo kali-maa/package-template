@@ -65,12 +65,16 @@ jobs:
         git init
     - name: Code style checks
       run: |
-        pwd
+        cd ../test/${{ matrix.foldername }}
         tox -e codestyle
-    #- name: Build docs
-    #  run: tox -e build_docs
-    #- name: Tests
-    #  run: tox -e py38-test
+    - name: Build docs
+      run: |
+        cd ../test/${{ matrix.foldername }}
+        tox -e build_docs
+    - name: Tests
+      run: |
+        cd ../test/${{ matrix.foldername }}
+        tox -e py38-test
 
   render:
     name: Render template
@@ -92,11 +96,10 @@ jobs:
         cookiecutter --no-input ./ -o ../test use_compiled_extensions=y include_example_code=y license=Other --config-file rendered.yml --no-input
         cd ../test/packagename
         git init
-        cd ..
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       if: github.repository == 'kali-maa/package-template' && github.event_name == 'push'
       with:
         name: rendered
-        path: packagename/
+        path: ../test/packagename/
         retention-days: 1
