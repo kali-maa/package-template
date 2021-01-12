@@ -63,6 +63,7 @@ jobs:
         cookiecutter --no-input ./ -o ../test ${{ matrix.extra_context }} ${{ matrix.extra_flags }}
         cd ../test/${{ matrix.foldername }}
         git init
+        ls -R
     - name: Code style checks
       run: tox -e codestyle
     - name: Build docs
