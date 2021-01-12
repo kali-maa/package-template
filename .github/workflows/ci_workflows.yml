@@ -63,13 +63,14 @@ jobs:
         cookiecutter --no-input ./ -o ../test ${{ matrix.extra_context }} ${{ matrix.extra_flags }}
         cd ../test/${{ matrix.foldername }}
         git init
-        ls -R
     - name: Code style checks
-      run: tox -e codestyle
-    - name: Build docs
-      run: tox -e build_docs
-    - name: Tests
-      run: tox -e py38-test
+      run: |
+        pwd
+        tox -e codestyle
+    #- name: Build docs
+    #  run: tox -e build_docs
+    #- name: Tests
+    #  run: tox -e py38-test
 
   render:
     name: Render template
