@@ -12,16 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'kali-maa/package-template' && github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success'
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Initial set up
-      run: |
-        set -evax
-        mkdir -p ~/.ssh
-        openssl aes-256-cbc -K $encrypted_c554857c6215_key -iv $encrypted_c554857c6215_iv -in github_deploy_key.enc -out ~/.ssh/publish-key -d
-        chmod u=rw,og= ~/.ssh/publish-key
-        echo "Host github.com" >> ~/.ssh/config
-        echo "  IdentityFile ~/.ssh/publish-key" >> ~/.ssh/config
     - name: Set up Git
       run: |
         git --version
@@ -54,11 +44,13 @@ jobs:
         cd test/packagename
         unzip rendered.zip
         rm rendered.zip
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        path: 'test/rendered_dir'
     - name: Run script
       run: |
-        cd ${{github.workspace}}/test
-        git clone git@github.com:astropy/package-template rendered_dir
-        cd rendered_dir
+        cd ${{github.workspace}}/test/rendered_dir
         git remote update
         git checkout master
         rsync -avz --delete --exclude .git/ ../packagename/ ./
