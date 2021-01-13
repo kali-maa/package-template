@@ -14,6 +14,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+    - name: Initial set up
+      run: |
+        set -evax
+        mkdir -p ~/.ssh
+        openssl aes-256-cbc -K $encrypted_c554857c6215_key -iv $encrypted_c554857c6215_iv -in github_deploy_key.enc -out ~/.ssh/publish-key -d
+        chmod u=rw,og= ~/.ssh/publish-key
+        echo "Host github.com" >> ~/.ssh/config
+        echo "  IdentityFile ~/.ssh/publish-key" >> ~/.ssh/config
     - name: Set up Git
       run: |
         git --version
@@ -41,15 +49,14 @@ jobs:
           fs.writeFileSync('${{github.workspace}}/rendered.zip', Buffer.from(download.data));
     - name: Unzip artifact
       run: |
-        mkdir test
-        mv rendered.zip test/
-        cd test
+        mkdir -p test/packagename
+        mv rendered.zip test/packagename
+        cd test/packagename
         unzip rendered.zip
-        ls -R
+        rm rendered.zip
     - name: Run script
       run: |
         cd ${{github.workspace}}/test
-        ls packagename
         git clone git@github.com:astropy/package-template rendered_dir
         cd rendered_dir
         git remote update
@@ -57,5 +64,4 @@ jobs:
         rsync -avz --delete --exclude .git/ ../packagename/ ./
         git add -A
         git commit --allow-empty -m "Update rendered version to ""$GITHUB_SHA"
-        git log -n 2
-#        git push origin master
+        git push origin master
