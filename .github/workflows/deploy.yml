@@ -41,17 +41,21 @@ jobs:
           fs.writeFileSync('${{github.workspace}}/rendered.zip', Buffer.from(download.data));
     - name: Unzip artifact
       run: |
+        mkdir test
+        mv rendered.zip test/
+        cd test
         unzip rendered.zip
         ls -R
-#    - name: Run script
-#      run: |
-#        cd test
-#        ls packagename
-#        git clone git@github.com:astropy/package-template rendered
-#        cd rendered
-#        git remote update
-#        git checkout master
-#        rsync -avz --delete --exclude .git/ ../packagename/ ./
-#        git add -A
-#        git commit --allow-empty -m "Update rendered version to ""$GITHUB_SHA"
+    - name: Run script
+      run: |
+        cd ${{github.workspace}}/test
+        ls packagename
+        git clone git@github.com:astropy/package-template rendered_dir
+        cd rendered_dir
+        git remote update
+        git checkout master
+        rsync -avz --delete --exclude .git/ ../packagename/ ./
+        git add -A
+        git commit --allow-empty -m "Update rendered version to ""$GITHUB_SHA"
+        git log -n 2
 #        git push origin master
