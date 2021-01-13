@@ -97,11 +97,10 @@ jobs:
         cookiecutter --no-input ./ -o ./test use_compiled_extensions=y include_example_code=y license=Other --config-file rendered.yml --no-input
         cd ./test/packagename
         git init
-# ONLY COMMENTED FOR DEBUG -- UNCOMMENT BEFORE PROD
-#    - name: Upload artifact
-#      uses: actions/upload-artifact@v2
-#      if: github.repository == 'kali-maa/package-template' && github.event_name == 'push'
-#      with:
-#        name: rendered
-#        path: ${{ github.workspace }}/test/packagename/
-#        retention-days: 1
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      if: github.repository == 'kali-maa/package-template' && github.event_name == 'push'
+      with:
+        name: rendered
+        path: ${{ github.workspace }}/test/packagename/
+        retention-days: 1
