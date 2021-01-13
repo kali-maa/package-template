@@ -48,6 +48,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: 'test/rendered_dir'
+        token: ${{ secrets.ACTIONS_TOKEN }}
     - name: Run script
       run: |
         cd ${{github.workspace}}/test/rendered_dir
